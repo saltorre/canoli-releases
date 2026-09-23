@@ -126,11 +126,49 @@ and SmartScreen verify them for you.
 
 ---
 
-## Hardware
+## Hardware, and the driver it needs
 
-PEAK PCAN-USB on macOS, Windows and Linux. Vector interfaces on Windows.
-SocketCAN on Linux. No adapter? A virtual CAN bus is built in, so you can
-evaluate the whole tool before buying anything.
+**CANoli does not ship CAN drivers.** Installing CANoli is not enough to see an
+adapter — the vendor's driver has to be there first, or the adapter simply does
+not appear in the Connection panel and CANoli cannot tell you why.
+
+| Adapter | Windows | macOS | Linux | Driver you need |
+| --- | :---: | :---: | :---: | --- |
+| PEAK PCAN-USB / USB FD / USB Pro FD | ✅ | ✅ | ✅ | See below |
+| Vector VN16xx (VN1610, VN1611, …) | ✅ | — | — | Vector **XL Driver Library** — Windows only, which is why the adapter is |
+| SocketCAN (`can0`, `vcan0`, …) | — | — | ✅ | In-kernel, but the interface must be brought up first — see below |
+| Virtual (built in) | ✅ | ✅ | ✅ | **None.** Simulates two CAN nodes in software |
+
+### PEAK PCAN
+
+- **Windows** — install the PCAN device-driver package from
+  [peak-system.com](https://www.peak-system.com/).
+- **macOS** — install the **PCBUSB** library from
+  [github.com/mac-can/PCBUSB](https://github.com/mac-can/PCBUSB). This is the
+  macOS PCAN driver and is not shipped by PEAK.
+- **Linux** — nothing to install in most cases. The kernel's `peak_usb` driver
+  ships with most modern kernels and presents the adapter as a **SocketCAN**
+  interface, so follow the SocketCAN note below rather than looking for a PCAN
+  entry.
+
+### SocketCAN on Linux
+
+CAN adapters are network interfaces here, so the interface has to be up
+**before** you connect in CANoli, and **CANoli does not set its bitrate** — the
+`ip link` value governs the bus:
+
+```bash
+sudo ip link set can0 up type can bitrate 500000
+```
+
+### No adapter?
+
+The built-in **Virtual** adapter needs no driver and no hardware. It simulates
+two CAN nodes in software, so every feature works — which is the honest way to
+evaluate the tool before buying anything.
+
+There is more in
+[Connect a CAN Adapter](https://salvatorre.com/products/canoli/docs/connect-adapter).
 
 ---
 
